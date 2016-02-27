@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon
-  id="plugin.video.gamestar"
-  version="0.1.7"
-  name="GamestarVideo"
-  provider-name="Raptor 2101">
+  id="plugin.video.chb80_gamestar"
+  version="0.3.1"
+  name="Gamestar"
+  provider-name="chb80">
   <requires>
    <import addon="xbmc.python" version="2.1.0"/>
+   <import addon="script.module.mechanize" version="0.2.6"/>
   </requires>
   <extension 
     point="xbmc.python.pluginsource"
@@ -34,11 +35,11 @@
     Die beiden letzten Optionen brauchen ein Background-Script das vom Taskplanner oder (ana)cron angestoßen wird. Es ist im Addon-Verzeichniss zu finden: fetchOfflineData.py Pfad-Zur-Config.xml BandbreitenBegrenzung(in kbs)
     </description>
     <platform>all</platform>
-    <language>de</language>
+    <language>en de</language>
     <license>GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
-    <forum>https://github.com/raptor2101/Gamestar/issues</forum>
-    <website>https://github.com/raptor2101/Gamestar</website>
-    <source>https://github.com/raptor2101/Gamestar</source>
-    <email>raptor2101@gmx.de</email>
+    <forum></forum>
+    <website>http://chb80.spdns.org/sites/show_site.php?site_id=PLUGIN_VIDEO_CHB80_GAMESTAR</website>
+    <source>https://github.com/chb80/GamestarPlus</source>
+    <email>chb80@gmx.de</email>
   </extension>
 </addon>

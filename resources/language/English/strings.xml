@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <strings>
-    <string id="30000">Youtube</string>
-    <string id="30001">Newest videos</string>
+    <string id="20001">Search</string>
+	
+	<string id="21001">Magazine videos</string>	
+	
+	<string id="30000">Youtube</string>
+	
+    <string id="30001">Latest</string>
+	
+	<string id="30070">Most popular</string>
+	<string id="30071">Most commented</string>
+	
     <string id="30002">Reviews</string>
     <string id="30003">Previews</string>
     <string id="30004">Specials</string>
@@ -12,8 +21,22 @@
     <string id="30009">Technique checks</string>
     <string id="30010">Boxenstops</string>
     <string id="30011">Trailer</string>
+	
+	<string id="30080">Fresh painted</string>
+	<string id="30081">What is...</string>
+	<string id="30082">News</string>
+	<string id="30083">Gamewatch</string>
+	<string id="30084">Month outlook</string>
+	<string id="30085">Grafikpracht</string>
+	<string id="30086">Gamestar TV</string>
+	
     <string id="30100">Gamestar</string>
     <string id="30101">Gamepro</string>
     <string id="30102">Youtube</string>
-    <string id="30102">show Sourcename</string>
+    <string id="30103">show Sourcename</string>
+	
+	<string id="30200">Gamestar Plus Username</string>
+    <string id="30201">Gamestar Plus Password</string>			
+	
+	<string id="30900">Older than:</string>
 </strings>

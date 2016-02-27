@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #-------------LicenseHeader--------------
-# plugin.video.gamestar - Downloads/view videos from gamestar.de
-# Copyright (C) 2010  Raptor 2101 [raptor2101@gmx.de]
+# plugin.video.chb80_gamestar - Downloads/view videos from gamestar.de
+# Copyright (C) 2015  chb80 [chb80@gmx.de]
+# based on GamestarVideo [plugin.video.gamestar] 0.1.5 Copyright (C) 2010  Raptor 2101 [raptor2101@gmx.de]
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,27 +31,53 @@ class SimpleXbmcGui(object):
     else:
       xbmc.log("[%s]: %s" % (__plugin__, msg.encode('utf8')))
     
-  def buildVideoLink(self, videoItems):
+  def buildVideoLink(self, category, videoItems):
     for videoItem in videoItems:
       if(self.showSourcename):
         title = "[%s] %s"%(videoItem.sourceName, videoItem.title)
       else:
         title = "%s"%(videoItem.title)
       listItem=xbmcgui.ListItem(title, iconImage="DefaultFolder.png", thumbnailImage=videoItem.picture)
-        
+            
       url = videoItem.url;
-      xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=url,listitem=listItem,isFolder=False)
-    
+      xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=url,listitem=listItem,isFolder=False)    
+        
+  def buildNextPageLink(self, category, page, userstring, newpagetext):        
+    if(newpagetext == ""):
+      title = ">>> %s >>>"%page
+    else:
+      title = ">>> %s >>>"%newpagetext
+      
+    listItem=xbmcgui.ListItem(title, iconImage="DefaultFolder.png", thumbnailImage="")
+    url = "%s?&action=list&cat=%s" % (sys.argv[0], category);
+    if(not userstring == ""):
+      url += "&userstring=%s"%userstring;
+    if(page > 0):
+      url += "&page=%s"%page;
+    xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=url,listitem=listItem,isFolder=True)    
 
   def showCategories(self,categorieItems):
-    for (index,pictureLink) in categorieItems.iteritems():    
-      addon = xbmcaddon.Addon("plugin.video.gamestar")
+    for index in categorieItems:    
+      categorieItem = categorieItems[index]
       
-      title = addon.getLocalizedString(index)
-      listItem=xbmcgui.ListItem(title, iconImage="DefaultFolder.png", thumbnailImage=pictureLink)
-      u = "%s?&action=list&cat=%s" % (sys.argv[0], index)
+      addon = xbmcaddon.Addon("plugin.video.chb80_gamestar")
+      
+      if(index<900000):
+        tobeused_title = addon.getLocalizedString(index)
+      else:
+        tobeused_title = categorieItem.title
+        
+      listItem=xbmcgui.ListItem(tobeused_title, iconImage="DefaultFolder.png", thumbnailImage=categorieItem.pictureLink)
+      #listItem.setInfo('', { 'count': index })
+      if(categorieItem.default_paging):
+        u = "%s?&action=list&cat=%s&page=%s" % (sys.argv[0], index, 1)
+      else:
+        u = "%s?&action=list&cat=%s" % (sys.argv[0], index)
         
       xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=listItem,isFolder=True)
+    
+    #xbmcplugin.addSortMethod(handle=int(sys.argv[1]), sortMethod=20)
+    xbmcplugin.addSortMethod(handle=int(sys.argv[1]), sortMethod=1)
   
   def openMenuContext(self):
     self.dialogProgress = xbmcgui.DialogProgress();
@@ -64,6 +91,11 @@ class SimpleXbmcGui(object):
   def play(self, path):
     player = xbmc.Player();
     player.play(path);
+    
+  def keyboardInput(self):
+    keyboard = xbmc.Keyboard("")
+    keyboard.doModal();
+    return keyboard;
   
   def errorOK(self,title="", msg=""):
     e = str( sys.exc_info()[ 1 ] )

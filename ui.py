@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #-------------LicenseHeader--------------
-# plugin.video.gamestar - Downloads/view videos from gamestar.de
-# Copyright (C) 2010  Raptor 2101 [raptor2101@gmx.de]
+# plugin.video.chb80_gamestar - Downloads/view videos from gamestar.de
+# Copyright (C) 2015  chb80 [chb80@gmx.de]
+# based on GamestarVideo [plugin.video.gamestar] 0.1.5 Copyright (C) 2010  Raptor 2101 [raptor2101@gmx.de]
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,6 +24,9 @@ class VideoObject(object):
     self.sourceName = sourceName
 
 class GalleryObject(object):
-  def __init__(self,url,pictureLink):
+  def __init__(self,url,pictureLink,title,userstring_parameter,default_paging):
     self.url = url
     self.pictureLink = pictureLink
+    self.title = title
+    self.userstring_parameter = userstring_parameter
+    self.default_paging = default_paging

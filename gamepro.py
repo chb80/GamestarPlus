@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #-------------LicenseHeader--------------
-# plugin.video.gamestar - Downloads/view videos from gamestar.de
-# Copyright (C) 2010  Raptor 2101 [raptor2101@gmx.de]
+# plugin.video.chb80_gamestar - Downloads/view videos from gamepro.de
+# Copyright (C) 2015  chb80 [chb80@gmx.de]
+# based on GamestarVideo [plugin.video.gamestar] 0.1.5 Copyright (C) 2010  Raptor 2101 [raptor2101@gmx.de]
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,83 +16,143 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-import urllib, re, time,traceback;
+import urllib, re, time, xbmcaddon
 from ui import *;
 
 class GameproWeb(object):
-  def __init__(self, gui):
+  def __init__(self, gui, loginHandler):    
     self.gui = gui;
-    self.rootLink = "http://www.gamepro.de/";
+    self.loginHandler = loginHandler;
+    self.loginDone = "";
+    
+    self.rootLink = "http://www.gamepro.de";
     self.shortName = "GP";
-
+    
     ##setup regular expressions
-    self._regEx_extractVideoID = re.compile("/videos/.*,(\\d*)\\.html");
+    self.imageRegex = "<img src=\".*\" width=\"\\d*\" height=\"\\d*\" alt=\".*\" />"
+    self.linkRegex =  "/.*?,\\d*?\\.html"
+
+
+
+
+    self.hrefRegex = "<a (class=\".*?\" ){0,1}href=\""+self.linkRegex+"\" .+?>"
+    self.headerRegex ="<strong>.+?</strong>\\s*.*\\s*</a>"
+    self.titleRegex = "<a.*?>(.*?)</a>"
+    self.simpleLinkRegex = "<a href=\""+self.linkRegex+"\" .+?>.+?</a>";
+
+
+    self._regEx_extractVideoThumbnail = re.compile("<div class=\"videoPreview\">\\s*"+self.hrefRegex+"\\s*"+self.imageRegex+"\\s*</a>\\s*<span>\\s*"+self.hrefRegex+"\\s*"+self.headerRegex);
+    self._regEx_extractTargetLink = re.compile(self.linkRegex);
+    self._regEx_extractVideoID = re.compile(",(\\d+)\\.html");
     self._regEx_extractVideoLink = re.compile("http.*(mp4|flv)");
-    self._regEx_extractPictureLink = re.compile("(http://|//).*.jpg");
-    self._regEx_extractTitle = re.compile("<videoname>\\d*?\\.(.*)\\.embed</videoname>");
+    self._regEx_extractPictureLink = re.compile("//.*.jpg");
+    self._regEx_extractHeader = re.compile(self.headerRegex);
+    self._regEx_extractSimpleLink = re.compile(self.simpleLinkRegex);
+    self._regEx_extractTitle = re.compile(self.titleRegex);
     ##end setup
     
-    linkRoot = self.rootLink+"videos/video-kanaele/";
-    imageRoot = "http://images.gamestar.de/images/idgwpgsgp/bdb/";    
+    linkRoot = self.rootLink + "/templates/gamepro/videos/portal/getChannelOverview.cfm";
+    imageRoot = "";
 
     ##setup categories
     self.categories = {
-      30001:GalleryObject(linkRoot+"latest/", imageRoot+"/2018270/b144x81.jpg"),
-      30002:GalleryObject(linkRoot+"tests,17/",imageRoot+"2018272/b144x81.jpg"),
-      30003:GalleryObject(linkRoot+"previews,18/",imageRoot+"bdb/2018269/b144x81.jpg"),
-      30004:GalleryObject(linkRoot+"specials,20/",imageRoot+"2018270/b144x81.jpg"),
-      30011:GalleryObject(linkRoot+"trailer,3","http://images.cgames.de/images/idgwpgsgp/bdb/2017073/b144x81.jpg"),
-      30009:GalleryObject(linkRoot+"candyland,102/","http://images.cgames.de/images/idgwpgsgp/bdb/2557236/b144x81.jpg"),
-      30010:GalleryObject(linkRoot+"boxenstop,2",imageRoot+"2018274/b144x81.jpg"),
+      20001:GalleryObject(linkRoot+"?channelName=search","","","search",True),
+      
+      30001:GalleryObject(linkRoot+"?channelName=latest&channelMaster=0","","","",True),
+      
+      30070:GalleryObject(linkRoot+"?channelName=popular&channelMaster=0","","","",True),
+      30071:GalleryObject(linkRoot+"?channelName=comments&channelMaster=0","","","",True),
+      
+      30002:GalleryObject(linkRoot+"?channelId=17&channelMaster=0","","","",True),
+      30003:GalleryObject(linkRoot+"?channelId=18&channelMaster=0","","","",True),
+      30004:GalleryObject(linkRoot+"?channelId=20&channelMaster=0","","","",True),
+      #30005
+      30006:GalleryObject(linkRoot+"?channelId=22&channelMaster=0","","","",True),
+      30007:GalleryObject(linkRoot+"?channelId=15&channelMaster=0","","","",True),
+      30008:GalleryObject(linkRoot+"?channelId=37&channelMaster=0","","","",True),
+      30009:GalleryObject(linkRoot+"?channelId=32&channelMaster=0","","","",True),
+      30010:GalleryObject(linkRoot+"?channelId=2&channelMaster=0","","","",True),
+      30011:GalleryObject(linkRoot+"?channelId=3&channelMaster=0","","","",True),
+      
+      #30080
+      30081:GalleryObject(linkRoot+"?channelId=96&channelMaster=0","","","",True),
+      30082:GalleryObject(linkRoot+"?channelId=100&channelMaster=0","","","",True),
+      30083:GalleryObject(linkRoot+"?channelId=97&channelMaster=0","","","",True),
+      #30084
+      30085:GalleryObject(linkRoot+"?channelId=23&channelMaster=0","","","",True),
+      #30086
+      
+      
       }
+      
+    import xml.dom.minidom
+    linksXML = xml.dom.minidom.parse(urllib.urlopen("http://chb80.spdns.org/binaries/show_dynbin.php4?dynbin_id=PLUGIN_VIDEO_CHB80_GAMESTAR_LINKS_GP"))
+    for mainNode in linksXML.childNodes:
+      if mainNode.nodeName == "links":
+        for linkNode in mainNode.childNodes:
+          if linkNode.nodeName == "link":
+            id = int(linkNode.getAttribute("id")) + 9100000
+            for attributeNode in linkNode.childNodes:
+              if attributeNode.nodeName == "link":
+                link = attributeNode.firstChild.data.strip()
+              elif attributeNode.nodeName == "imagelink":
+                imagelink = "" #attributeNode.firstChild.data.strip()
+              elif attributeNode.nodeName == "title":
+                title = attributeNode.firstChild.data.strip()
+            if(link.startswith('http://')):
+              self.categories[id]=GalleryObject(link, imageRoot+imagelink,title,"",True);
+            elif(link.startswith('https://')):
+              self.categories[id]=GalleryObject(link, imageRoot+imagelink,title,"",True);
+            else:
+              self.categories[id]=GalleryObject(linkRoot+link, imageRoot+imagelink,title,"",True);                     
     ##endregion
     
   def getCategories(self):
     categories={};
     for key in self.categories.keys():
-      categories[key]=self.categories[key].pictureLink;
+      categories[key]=self.categories[key];
     return categories;
   
-  def getVideoLinkObjects(self, categorie):
+  def getVideoLinkObjects(self, categorieid, page, userstring):
+    addon = xbmcaddon.Addon("plugin.video.chb80_gamestar")
+  
     videoObjects = [];
-    if categorie in self.categories:
-      categorie = self.categories[categorie];
-      self.gui.log(categorie.url);
-      rootDocument = self.loadPage(categorie.url);
-      
-      videoIds = set();
-      for match in self._regEx_extractVideoID.finditer(rootDocument):       
-        videoId = match.group(1);
-        if(videoId not in videoIds):
-          
-          videoIds.add(videoId);
-          
-      for videoId in sorted(videoIds, reverse=True):        
-        try:
-          videoObjects.append(self.loadVideoPage(videoId));
+    executed = False
+    newpagetext = "";
+    
+    if categorieid in self.categories:
+      categorie = self.categories[categorieid];
+      executed = True      
+      categorie_url = categorie.url;
+      if(not categorie.userstring_parameter == ""):
+        categorie_url += "&"+categorie.userstring_parameter+"="+userstring;
+      categorie_url += "&p=%s"%page;
+      self.gui.log(categorie_url);
+      rootDocument = self.loadPage(categorie_url);
+      for videoThumbnail in self._regEx_extractVideoThumbnail.finditer(rootDocument):
+        
+        videoThumbnail = videoThumbnail.group()
+        videoID = self._regEx_extractVideoID.search(videoThumbnail).group(1);
+        
+        header = self._regEx_extractHeader.search(videoThumbnail).group();
+        header = re.sub("(<strong>)|(</strong>)|(</a>)", "", header);
+        header = re.sub("\\s+", " ", header);
+                
+        try:  
+          videoObjects.append(self.loadVideoPage(header, videoID));
         except:
-          self.gui.log("something goes wrong while processing "+videoId);
-          self.gui.log("Exception: ");
-          traceback.print_exc();
-          self.gui.log("Stacktrace: ");
-          traceback.print_stack();
-    return videoObjects;
+          pass;
+    return {'videoObjects':videoObjects, 'executed':executed, 'newpage':page+1, 'newpagetext':newpagetext }
 
 
-  def loadVideoPage(self, videoID):
+  def loadVideoPage(self, title, videoID):
     self.gui.log(self.rootLink+"/emb/getVideoData.cfm?vid="+videoID);
-    configDoc = self.loadPage(self.rootLink+"/emb/getVideoData.cfm?vid="+videoID).decode('utf-8');
-    videoLink = self._regEx_extractVideoLink.search(configDoc).group();
+    configDoc = self.loadPage(self.rootLink+"/emb/getVideoData.cfm?vid="+videoID);
+    videoLink = unicode(self._regEx_extractVideoLink.search(configDoc).group());
     videoLink = self.replaceXmlEntities(videoLink);
-    thumbnailLink = self._regEx_extractPictureLink.search(configDoc).group();
-    title = self._regEx_extractTitle.search(configDoc).group(1);
-    title = self.transformHtmlCodes(title);
+    thumbnailLink =unicode(self._regEx_extractPictureLink.search(configDoc).group());
     
-    if(not thumbnailLink.startswith('http://')):
-      thumbnailLink = thumbnailLink.replace("//",'http://');
-    thumbnailLink = thumbnailLink;
-    
-    return VideoObject(title, videoLink, thumbnailLink, self.shortName);
+    return VideoObject(title, videoLink, "http:"+thumbnailLink, self.shortName);
   
   def replaceXmlEntities(self, link):
     entities = (
