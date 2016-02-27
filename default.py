@@ -31,8 +31,8 @@ def get_params():
       paramPairs=sys.argv[2][1:].split( "&" )
       for paramsPair in paramPairs:
         paramSplits = paramsPair.split('=')
-    if (len(paramSplits))==2:
-      paramDict[paramSplits[0]] = paramSplits[1]
+        if (len(paramSplits))==2:
+          paramDict[paramSplits[0]] = paramSplits[1]
   except:
     errorOK()
   return paramDict

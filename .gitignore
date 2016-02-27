@@ -1,4 +1,5 @@
 config
+build.xml
 *.py[co]
 .*
 !/.gitignore
