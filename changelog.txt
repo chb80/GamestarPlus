@@ -1,3 +1,4 @@
+0.3.2 - Incorporated raptor2101 0.1.8 changes  
 0.3.1 - Added magazine videos (for Plus users)
 0.3.0 - Added search function
 0.2.5 - Bugfix

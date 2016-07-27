@@ -30,68 +30,57 @@ class GamestarWeb(object):
     self.shortName = "GS";
 
     ##setup regular expressions
-    self.imageRegex = "<img src=\".*\" width=\"\\d*\" height=\"\\d*\" alt=\".*\" (title=\".*\" )?/>"
-    self.linkRegex =  "(/videos/.*?,\\d*?\\.html|/index.cfm.*?&pk=\\d*&.*?)"
-    self.simpleLinkRegex = "<a href=\""+self.linkRegex+"\" .+?>.+?</a>";
-    self.hrefRegex = "<a.*? href=\""+self.linkRegex+"\">"
-    self.headerRegex = "<strong>.+</strong>\\s*.*\\s*</a>"
-    self.titleRegex = "<a.*?>(.*?)</a>"
-
-    self._regEx_extractVideoThumbnail = re.compile("<div class=\"videoPreview\">\\s*"+self.hrefRegex+"\\s*"+"(<img class=\"pOverlay\"[^>]*>)?"+"\\s*"+self.imageRegex+"\\s*</a>\\s*<span>\\s*"+self.hrefRegex+"\\s*"+self.headerRegex);
-    self._regEx_extractTargetLink = re.compile(self.linkRegex);
-    self._regEx_extractVideoID = re.compile("(\\d*.html|pk=\\d*)");
-    self._regEx_extractVideoLink = re.compile("http.*(mp4|flv)");
-    self._regEx_extractPictureLink = re.compile("(http://|//).*.jpg");
-    self._regEx_extractHeader = re.compile(self.headerRegex);
-    self._regEx_extractSimpleLink = re.compile(self.simpleLinkRegex);
-    self._regEx_extractTitle = re.compile(self.titleRegex);
-    
-    
-    
+    self.regexVideoObject = re.compile("<a href=\"(/videos/.*?,\\d*?\\.html)\" title=\"(.*?)\">\\s*<img src=\"(.*?)\"");
+    self.regexLink = re.compile("/videos/media,\\d+?(,(\\d)){0,1}\\.html");
+        
     self.magazineVideoLinkRegex =  "(/plus/heftvideos/.*?,\\d*?,\\d*?\\.html)"
     self.magazineVideoHrefRegex = "<a.*? href=\""+self.magazineVideoLinkRegex+"\">"
     self.magazineVideoHeaderRegex = "<b>.+</b>\\s*.*\\s*</a>"
     
+    self.imageRegex = "<img src=\".*\" width=\"\\d*\" height=\"\\d*\" alt=\".*\" (title=\".*\" )?/>"
     self._regEx_magazineVideoExtractMagID = re.compile("<div class=\"teaserHead\">\\s*<h3>(.*)</h3>\\s*<div style=\"clear:both\"></div>\\s*</div>");
     self._regEx_magazineVideoExtractNextPage = re.compile("<div style=\".*\">\\s*<a href=\"/index.cfm\?pid=2336.*pk=([0-9]*)\" class=\"linkProductM\">ältere Ausgaben</a>\\s*</div>");
     self._regEx_magazineVideoExtractVideoThumbnail = re.compile("<div class=\"teaserItem\".*>\\s*<div class=\"teaserImage\">\\s*"+self.magazineVideoHrefRegex+"\\s*"+"(<img class=\"pOverlay\"[^>]*>)?"+"\\s*"+self.imageRegex+"\\s*<span class=\"play\"></span>\\s*</a>\\s*</div>\\s*<div class=\"teaserTitle\">"+self.magazineVideoHrefRegex+"\\s*"+self.magazineVideoHeaderRegex);    
     self._regEx_magazineVideoExtractHeader = re.compile(self.magazineVideoHeaderRegex);
+    self._regEx_extractVideoID = re.compile("(\\d*.html|pk=\\d*)");
+    self._regEx_extractVideoLink = re.compile("http.*(mp4|flv)");
+    self._regEx_extractPictureLink = re.compile("(http://|//).*.jpg");    
     
     ##end setup
     
-    videoLinkRoot = self.rootLink+"index.cfm?pid=1589&ci=";        
+    videoLinkRoot = self.rootLink+"videos/";        
     magazineVideoLinkRoot = self.rootLink+"index.cfm?pid=2336";
     imageRoot = "http://images.gamestar.de/images/idgwpgsgp/bdb/";        
 
     ##setup categories
     self.categories = {
-      20001:GalleryObject(videoLinkRoot+"search", imageRoot+"/2018270/b144x81.jpg","","search",True),
+#      20001:GalleryObject(videoLinkRoot+"search", imageRoot+"/2018270/b144x81.jpg","","search",True),
       
       21001:GalleryObject(magazineVideoLinkRoot, imageRoot+"/2018270/b144x81.jpg","","",False),
       
-      30001:GalleryObject(videoLinkRoot+"latest", imageRoot+"/2018270/b144x81.jpg","","",True),
+      30001:GalleryObject(videoLinkRoot+"alle-videos,9100,newest/", imageRoot+"/2018270/b144x81.jpg","","",True),
       
-      30070:GalleryObject(videoLinkRoot+"popular", imageRoot+"/2018270/b144x81.jpg","","",True),
-      30071:GalleryObject(videoLinkRoot+"comments", imageRoot+"/2018270/b144x81.jpg","","",True),
+      30070:GalleryObject(videoLinkRoot+"alle-videos,9100,hot/", imageRoot+"/2018270/b144x81.jpg","","",True),
+#      30071:GalleryObject(videoLinkRoot+"comments", imageRoot+"/2018270/b144x81.jpg","","",True),
       
-      30002:GalleryObject(videoLinkRoot+"17",imageRoot+"2018272/b144x81.jpg","","",True),
-      30003:GalleryObject(videoLinkRoot+"18",imageRoot+"bdb/2018269/b144x81.jpg","","",True),
-      30004:GalleryObject(videoLinkRoot+"20",imageRoot+"2018270/b144x81.jpg","","",True),
-      30005:GalleryObject(videoLinkRoot+"9",imageRoot+"bdb/2016676/b144x81.jpg","","",True),
-      30006:GalleryObject(videoLinkRoot+"22",imageRoot+"2016431/b144x81.jpg","","",True),
-      30007:GalleryObject(videoLinkRoot+"15",imageRoot+"2018271/b144x81.jpg","","",True),
-      30008:GalleryObject(videoLinkRoot+"37",imageRoot+"2121485/b144x81.jpg","","",True),
-      30009:GalleryObject(videoLinkRoot+"32",imageRoot+"2018270/b144x81.jpg","","",True),
-      30010:GalleryObject(videoLinkRoot+"2",imageRoot+"2018274/b144x81.jpg","","",True),
-      30011:GalleryObject(videoLinkRoot+"3",imageRoot+"2017073/b144x81.jpg","","",True),
+      30002:GalleryObject(videoLinkRoot+"tests,17/",imageRoot+"2018272/b144x81.jpg","","",True),
+      30003:GalleryObject(videoLinkRoot+"previews,18/",imageRoot+"bdb/2018269/b144x81.jpg","","",True),
+      30004:GalleryObject(videoLinkRoot+"specials,20/",imageRoot+"2018270/b144x81.jpg","","",True),
+#      30005:GalleryObject(videoLinkRoot+"9",imageRoot+"bdb/2016676/b144x81.jpg","","",True),
+#      30006:GalleryObject(videoLinkRoot+"22",imageRoot+"2016431/b144x81.jpg","","",True),
+      30007:GalleryObject(videoLinkRoot+"server-down-show,15/",imageRoot+"2018271/b144x81.jpg","","",True),
+#      30008:GalleryObject(videoLinkRoot+"37",imageRoot+"2121485/b144x81.jpg","","",True),
+      30009:GalleryObject(videoLinkRoot+"technik-checks,32/",imageRoot+"2018270/b144x81.jpg","","",True),
+      30010:GalleryObject(videoLinkRoot+"boxenstopp,2/",imageRoot+"2018274/b144x81.jpg","","",True),
+      30011:GalleryObject(videoLinkRoot+"trailer,3/",imageRoot+"2017073/b144x81.jpg","","",True),
       
-      30080:GalleryObject(videoLinkRoot+"104",imageRoot+"2622016/b144x81.jpg","","",True),
-      30081:GalleryObject(videoLinkRoot+"96","http://news.bbcimg.co.uk/media/images/77759000/jpg/_77759910_question-mark.jpg","","",True),
-      30082:GalleryObject(videoLinkRoot+"100",imageRoot+"2558457/b144x81.jpg","","",True),
-      30083:GalleryObject(videoLinkRoot+"97",imageRoot+"2510018/b144x81.jpg","","",True),
-      30084:GalleryObject(videoLinkRoot+"24",imageRoot+"2095504/b144x81.jpg","","",True),
-      30085:GalleryObject(videoLinkRoot+"23",imageRoot+"2017085/b144x81.jpg","","",True),
-      30086:GalleryObject(videoLinkRoot+"1", imageRoot+"2491153/b144x81.jpg","","",True),
+      30080:GalleryObject(videoLinkRoot+"frisch-gestrichen,104/",imageRoot+"2622016/b144x81.jpg","","",True),
+      30081:GalleryObject(videoLinkRoot+"was-ist-,96/","http://news.bbcimg.co.uk/media/images/77759000/jpg/_77759910_question-mark.jpg","","",True),
+      30082:GalleryObject(videoLinkRoot+"news,100/",imageRoot+"2558457/b144x81.jpg","","",True),
+      30083:GalleryObject(videoLinkRoot+"gamewatch,97/",imageRoot+"2510018/b144x81.jpg","","",True),
+      30084:GalleryObject(videoLinkRoot+"monats-vorschau,24/",imageRoot+"2095504/b144x81.jpg","","",True),
+#      30085:GalleryObject(videoLinkRoot+"23",imageRoot+"2017085/b144x81.jpg","","",True),
+      30086:GalleryObject(videoLinkRoot+"gamestar-tv,1/", imageRoot+"2491153/b144x81.jpg","","",True),
       
       
       }
@@ -136,12 +125,13 @@ class GamestarWeb(object):
       categorie_url = categorie.url;
       
       if(categorieid == 21001):
-        if(page > 0):
+        if(page > 1):
           categorie_url += "&pk=%s"%page;
       else:
         if(not categorie.userstring_parameter == ""):
           categorie_url += "&"+categorie.userstring_parameter+"="+userstring;
-        categorie_url += "&p=%s"%page;
+        if(page > 1):
+          categorie_url += "&p=%s"%page;
         
       self.gui.log(categorie_url);
       rootDocument = self.loadPage(categorie_url);      
@@ -157,31 +147,38 @@ class GamestarWeb(object):
           header = re.sub("\\s+", " ", header);
           
           try:
-            videoObjects.append(self.loadVideoPage(header, videoID));
+            videoObjects.append(self.loadVideoPage(header, videoID));            
           except:
             self.gui.log("something goes wrong while processing "+videoID);
-            self.gui.log("Exception: ");
-            traceback.print_exc();
-            self.gui.log("Stacktrace: ");
-            traceback.print_stack();   
+        self.gui.log("Exception: ");
+        traceback.print_exc();
+        self.gui.log("Stacktrace: ");
+        traceback.print_stack();   
       else:
-        for videoThumbnail in self._regEx_extractVideoThumbnail.finditer(rootDocument):
-      
-          videoThumbnail = videoThumbnail.group()        
-          videoID = self._regEx_extractVideoID.search(videoThumbnail).group().replace(".html","").replace("pk=","");
-        
-          header = self._regEx_extractHeader.search(videoThumbnail).group();
-          header = re.sub("(<strong>)|(</strong>)|(</a>)", "", header);
-          header = re.sub("\\s+", " ", header);
-        
-          try:
-            videoObjects.append(self.loadVideoPage(header, videoID));
-          except:
-            self.gui.log("something goes wrong while processing "+videoID);
-            self.gui.log("Exception: ");
-            traceback.print_exc();
-            self.gui.log("Stacktrace: ");
-            traceback.print_stack();          
+        videoIds = set();
+        for match in self.regexVideoObject.finditer(rootDocument):
+          title = match.group(2);
+          thumbnailLink = match.group(3);
+          if(not thumbnailLink.startswith('http://')):
+            thumbnailLink = thumbnailLink.replace("//",'http://');
+          videoPageLink = self.rootLink+match.group(1);
+          self.gui.log(videoPageLink);
+          videoPage=self.loadPage(videoPageLink);
+          matches= list(self.regexLink.finditer(videoPage));
+          if len(matches) == 0: 
+            continue;
+          if len(matches) == 1:
+            link = self.rootLink+matches[0].group(0);
+          else:
+            links = {}
+            for match in self.regexLink.finditer(videoPage):
+              quality = match.group(1);
+              link = self.rootLink+match.group(0);
+              self.gui.log("Quality %s: %s"%(quality,link));
+              links[quality]=link
+            qualitiy = sorted(links.keys(),reverse = True)[0];
+            link=links[qualitiy]
+          videoObjects.append(VideoObject(title, link, thumbnailLink, self.shortName));
           
       if(categorieid == 21001):
         newpage = self._regEx_magazineVideoExtractNextPage.search(rootDocument).group(1);
@@ -192,17 +189,20 @@ class GamestarWeb(object):
         
     return {'videoObjects':videoObjects, 'executed':executed, 'newpage':newpage, 'newpagetext':newpagetext }
 
-  def loadVideoPage(self, title, videoID):
-    self.gui.log(self.rootLink+"/emb/getVideoData.cfm?vid="+videoID);
-    configDoc = self.loadPage(self.rootLink+"/emb/getVideoData.cfm?vid="+videoID);
-    videoLink = unicode(self._regEx_extractVideoLink.search(configDoc).group());
+  def loadVideoObject(self, videoID):
+    link = self.configPage%videoID;
+    self.gui.log(link);
+    configDoc = self.loadPage(link).decode('utf-8');
+    videoLink = self._regEx_extractVideoLink.search(configDoc).group();
     videoLink = self.replaceXmlEntities(videoLink);
     thumbnailLink = self._regEx_extractPictureLink.search(configDoc).group();
+    title = self._regEx_extractTitle.search(configDoc).group(1);
+    title = self.transformHtmlCodes(title);
     if(not thumbnailLink.startswith('http://')):
       thumbnailLink = thumbnailLink.replace("//",'http://');
-    thumbnailLink = unicode(thumbnailLink);
+    thumbnailLink = thumbnailLink;
     
-    return VideoObject(title, videoLink, thumbnailLink, self.shortName);
+    return VideoObject(title, videoLink, thumbnailLink, self.shortName)
   
   def replaceXmlEntities(self, link):
     entities = (
@@ -283,3 +283,16 @@ class GamestarWeb(object):
       return self.loginDone
     else:
       return self.loginDone
+
+  
+  def loadVideoPage(self, title, videoID):
+    self.gui.log(self.rootLink+"/emb/getVideoData.cfm?vid="+videoID);
+    configDoc = self.loadPage(self.rootLink+"/emb/getVideoData.cfm?vid="+videoID);
+    videoLink = unicode(self._regEx_extractVideoLink.search(configDoc).group());
+    videoLink = self.replaceXmlEntities(videoLink);
+    thumbnailLink = self._regEx_extractPictureLink.search(configDoc).group();
+    if(not thumbnailLink.startswith('http://')):
+      thumbnailLink = thumbnailLink.replace("//",'http://');
+    thumbnailLink = unicode(thumbnailLink);
+    
+    return VideoObject(title, videoLink, thumbnailLink, self.shortName);

@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>. 
-import urllib, re, time, xbmcaddon
+import urllib, re, time, xbmcaddon, traceback
 from ui import *;
 
 class GameproWeb(object):
@@ -25,61 +25,45 @@ class GameproWeb(object):
     self.loginHandler = loginHandler;
     self.loginDone = "";
     
-    self.rootLink = "http://www.gamepro.de";
+    self.rootLink = "http://www.gamepro.de/";
     self.shortName = "GP";
     
     ##setup regular expressions
-    self.imageRegex = "<img src=\".*\" width=\"\\d*\" height=\"\\d*\" alt=\".*\" />"
-    self.linkRegex =  "/.*?,\\d*?\\.html"
-
-
-
-
-    self.hrefRegex = "<a (class=\".*?\" ){0,1}href=\""+self.linkRegex+"\" .+?>"
-    self.headerRegex ="<strong>.+?</strong>\\s*.*\\s*</a>"
-    self.titleRegex = "<a.*?>(.*?)</a>"
-    self.simpleLinkRegex = "<a href=\""+self.linkRegex+"\" .+?>.+?</a>";
-
-
-    self._regEx_extractVideoThumbnail = re.compile("<div class=\"videoPreview\">\\s*"+self.hrefRegex+"\\s*"+self.imageRegex+"\\s*</a>\\s*<span>\\s*"+self.hrefRegex+"\\s*"+self.headerRegex);
-    self._regEx_extractTargetLink = re.compile(self.linkRegex);
-    self._regEx_extractVideoID = re.compile(",(\\d+)\\.html");
+    self._regEx_extractVideoID = re.compile("/videos/.*,(\\d*)\\.html");
     self._regEx_extractVideoLink = re.compile("http.*(mp4|flv)");
-    self._regEx_extractPictureLink = re.compile("//.*.jpg");
-    self._regEx_extractHeader = re.compile(self.headerRegex);
-    self._regEx_extractSimpleLink = re.compile(self.simpleLinkRegex);
-    self._regEx_extractTitle = re.compile(self.titleRegex);
+    self._regEx_extractPictureLink = re.compile("(http://|//).*.jpg");
+    self._regEx_extractTitle = re.compile("<videoname>\\d*?\\.(.*)\\.embed</videoname>");
     ##end setup
     
-    linkRoot = self.rootLink + "/templates/gamepro/videos/portal/getChannelOverview.cfm";
-    imageRoot = "";
+    linkRoot = self.rootLink+"videos/video-kanaele/";
+    imageRoot = "http://images.gamestar.de/images/idgwpgsgp/bdb/";   
 
     ##setup categories
     self.categories = {
-      20001:GalleryObject(linkRoot+"?channelName=search","","","search",True),
+#      20001:GalleryObject(linkRoot+"?channelName=search","","","search",True),
       
-      30001:GalleryObject(linkRoot+"?channelName=latest&channelMaster=0","","","",True),
+      30001:GalleryObject(linkRoot+"alle-videos,9100,newest/", imageRoot+"2018270/b144x81.jpg","","",True),
       
-      30070:GalleryObject(linkRoot+"?channelName=popular&channelMaster=0","","","",True),
-      30071:GalleryObject(linkRoot+"?channelName=comments&channelMaster=0","","","",True),
+      ######30070:GalleryObject(linkRoot+"?channelName=popular&channelMaster=0","","","",True),
+      ######30071:GalleryObject(linkRoot+"?channelName=comments&channelMaster=0","","","",True),
       
-      30002:GalleryObject(linkRoot+"?channelId=17&channelMaster=0","","","",True),
-      30003:GalleryObject(linkRoot+"?channelId=18&channelMaster=0","","","",True),
-      30004:GalleryObject(linkRoot+"?channelId=20&channelMaster=0","","","",True),
+      30002:GalleryObject(linkRoot+"tests,17/",imageRoot+"2018272/b144x81.jpg","","",True),
+      30003:GalleryObject(linkRoot+"previews,18/",imageRoot+"2018269/b144x81.jpg","","",True),
+      30004:GalleryObject(linkRoot+"specials,20/",imageRoot+"2018270/b144x81.jpg","","",True),
       #30005
-      30006:GalleryObject(linkRoot+"?channelId=22&channelMaster=0","","","",True),
-      30007:GalleryObject(linkRoot+"?channelId=15&channelMaster=0","","","",True),
-      30008:GalleryObject(linkRoot+"?channelId=37&channelMaster=0","","","",True),
-      30009:GalleryObject(linkRoot+"?channelId=32&channelMaster=0","","","",True),
-      30010:GalleryObject(linkRoot+"?channelId=2&channelMaster=0","","","",True),
-      30011:GalleryObject(linkRoot+"?channelId=3&channelMaster=0","","","",True),
+      ######30006:GalleryObject(linkRoot+"?channelId=22&channelMaster=0","","","",True),
+      ######30007:GalleryObject(linkRoot+"?channelId=15&channelMaster=0","","","",True),
+      ######30008:GalleryObject(linkRoot+"?channelId=37&channelMaster=0","","","",True),
+      30009:GalleryObject(linkRoot+"technik-checks,32/","2557236/b144x81.jpg","","",True),
+      30010:GalleryObject(linkRoot+"boxenstop,2/",imageRoot+"2018274/b144x81.jpg","","",True),
+      30011:GalleryObject(linkRoot+"trailer,3/","2017073/b144x81.jpg","","",True),
       
-      #30080
-      30081:GalleryObject(linkRoot+"?channelId=96&channelMaster=0","","","",True),
-      30082:GalleryObject(linkRoot+"?channelId=100&channelMaster=0","","","",True),
-      30083:GalleryObject(linkRoot+"?channelId=97&channelMaster=0","","","",True),
-      #30084
-      30085:GalleryObject(linkRoot+"?channelId=23&channelMaster=0","","","",True),
+      30080:GalleryObject(linkRoot+"frisch-gestrichen,104/",imageRoot+"2645072/b144x81.jpg","","",True),
+      30081:GalleryObject(linkRoot+"was-ist-,96/",imageRoot+"2018270/b144x81.jpg","","",True),
+      30082:GalleryObject(linkRoot+"news,100/",imageRoot+"2764165/b144x81.jpg","","",True),
+      30083:GalleryObject(linkRoot+"gamewatch,97/",imageRoot+"2018270/b144x81.jpg","","",True),
+      30084:GalleryObject(linkRoot+"monats-vorschau,24/",imageRoot+"2757586/b144x81.jpg","","",True),      
+      ######30085:GalleryObject(linkRoot+"?channelId=23&channelMaster=0","","","",True),
       #30086
       
       
@@ -129,28 +113,37 @@ class GameproWeb(object):
       categorie_url += "&p=%s"%page;
       self.gui.log(categorie_url);
       rootDocument = self.loadPage(categorie_url);
-      for videoThumbnail in self._regEx_extractVideoThumbnail.finditer(rootDocument):
-        
-        videoThumbnail = videoThumbnail.group()
-        videoID = self._regEx_extractVideoID.search(videoThumbnail).group(1);
-        
-        header = self._regEx_extractHeader.search(videoThumbnail).group();
-        header = re.sub("(<strong>)|(</strong>)|(</a>)", "", header);
-        header = re.sub("\\s+", " ", header);
-                
-        try:  
-          videoObjects.append(self.loadVideoPage(header, videoID));
+            
+      videoIds = set();
+      for match in self._regEx_extractVideoID.finditer(rootDocument):       
+        videoId = match.group(1);
+        if(videoId not in videoIds):
+          videoIds.add(videoId);
+          
+      for videoId in sorted(videoIds, reverse=True):        
+        try:
+          videoObjects.append(self.loadVideoPage(videoId));
         except:
-          pass;
+          self.gui.log("something goes wrong while processing "+videoId);
+          self.gui.log("Exception: ");
+          traceback.print_exc();
+          self.gui.log("Stacktrace: ");
+          traceback.print_stack();
     return {'videoObjects':videoObjects, 'executed':executed, 'newpage':page+1, 'newpagetext':newpagetext }
 
 
-  def loadVideoPage(self, title, videoID):
+  def loadVideoPage(self, videoID):
     self.gui.log(self.rootLink+"/emb/getVideoData.cfm?vid="+videoID);
-    configDoc = self.loadPage(self.rootLink+"/emb/getVideoData.cfm?vid="+videoID);
-    videoLink = unicode(self._regEx_extractVideoLink.search(configDoc).group());
+    configDoc = self.loadPage(self.rootLink+"/emb/getVideoData.cfm?vid="+videoID).decode('utf-8');
+    videoLink = self._regEx_extractVideoLink.search(configDoc).group();
     videoLink = self.replaceXmlEntities(videoLink);
-    thumbnailLink =unicode(self._regEx_extractPictureLink.search(configDoc).group());
+    thumbnailLink = self._regEx_extractPictureLink.search(configDoc).group();
+    title = self._regEx_extractTitle.search(configDoc).group(1);
+    title = self.transformHtmlCodes(title);
+    
+    if(not thumbnailLink.startswith('http://')):
+      thumbnailLink = thumbnailLink.replace("//",'http://');
+    thumbnailLink = thumbnailLink;
     
     return VideoObject(title, videoLink, "http:"+thumbnailLink, self.shortName);
   
